@@ -194,7 +194,8 @@ ramips_setup_interfaces()
 		ucidef_set_interface_lan "eth0.1"
 		;;
 	mzk-dp150n|\
-	vocore)
+	vocore|\
+	wc0030a)
 		ucidef_add_switch "switch0" \
 			"0:lan" "4:lan" "6t@eth0"
 		;;

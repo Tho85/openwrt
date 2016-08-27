@@ -1,0 +1,186 @@
+/dts-v1/;
+
+/include/ "rt5350.dtsi"
+
+/ {
+	compatible = "WC0030A", "ralink,rt5350-soc";
+	model = "WC0030A";
+
+	palmbus@10000000 {
+        /* Re-enable the gpio1 ports */
+		gpio1: gpio@660 {
+			status = "okay";
+		};
+
+		i2c@900 {
+			status = "okay";
+		};
+		uart@500 {
+			status = "okay";
+            /* Mix of uart and gpio */
+            reset-names = "gpio uartf";
+		};
+		spi@b00 {
+			status = "okay";
+
+			m25p80@0 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "s25fl064k";
+				reg = <0>;
+				linux,modalias = "m25p80", "s25fl064k";
+				spi-max-frequency = <10000000>;
+
+				partition@0 {
+					label = "uboot";
+					reg = <0x0 0x20000>;
+					read-only;
+				};
+
+				partition@20000 {
+					label = "uboot-env";
+					reg = <0x20000 0x10000>;
+					read-only;
+				};
+
+				factory: partition@30000 {
+					label = "factory";
+					reg = <0x30000 0x10000>;
+					read-only;
+				};
+
+				partition@40000 {
+					label = "firmware";
+					reg = <0x40000 0x7c0000>;
+				};
+			};
+
+			spidev@1 {
+				compatible = "linux,spidev";
+				spi-max-frequency = <10000000>;
+				reg = <1>;
+			};
+		};
+	};
+
+	pinctrl {
+		state_default: pinctrl0 {
+			gpio {
+                /* Associate the tjag, uartf and led groups with gpio */
+				ralink,group = "jtag", "led", "spi_cs1";
+                /* How do we set individual pins? */
+				ralink,function = "gpio";
+			};
+		};
+	};
+
+	ethernet@10100000 {
+		mtd-mac-address = <&factory 0x4>;
+	};
+
+	esw@10110000 {
+		ralink,portmap = <0x17>;
+	};
+
+	wmac@10180000 {
+		ralink,mtd-eeprom = <&factory 0>;
+	};
+
+	ehci@101c0000 {
+		status = "okay";
+	};
+
+	ohci@101c1000 {
+		status = "okay";
+	};
+
+    chosen {
+		bootargs = "console=ttyS1,57600";
+	};
+	gpio-export {
+		compatible = "gpio-export";
+		#size-cells = <0>;
+
+		gpio0 {
+			gpio-export,name = "gpio0";
+			gpio-export,direction_may_change = <1>;
+			gpios = <&gpio0 0 0>;
+		};
+
+        /* GPIOs 1-6 are I2C,SPI */
+        
+        /* GPIO 7-14 are uart1 */
+
+        /* GPIOs 15 & 16 are uart2 */
+
+		/* JTAG */
+		gpio17 {
+			/* JTAG_TDO */
+			gpio-export,name = "gpio17";
+			gpio-export,direction_may_change = <1>;
+			gpios = <&gpio0 17 0>;
+		};
+		gpio18 {
+			/* JTAG_TDI */
+			gpio-export,name = "gpio18";
+			gpio-export,direction_may_change = <1>;
+			gpios = <&gpio0 18 0>;
+		};
+		gpio19 {
+			/* JTAG_TMS */
+			gpio-export,name = "gpio19";
+			gpio-export,direction_may_change = <1>;
+			gpios = <&gpio0 19 0>;
+		};
+		gpio20 {
+			/* JTAG_TCLK */
+			gpio-export,name = "gpio20";
+			gpio-export,direction_may_change = <1>;
+			gpios = <&gpio0 20 0>;
+		};
+		gpio21 {
+			/* JTAG_TRST_N */
+			gpio-export,name = "gpio21";
+			gpio-export,direction_may_change = <1>;
+			gpios = <&gpio0 21 0>;
+		};
+
+		/* ETH LEDs */
+        /*
+        gpio22 {
+			gpio-export,name = "gpio22";
+			gpio-export,direction_may_change = <1>;
+			gpios = <&gpio1 0 0>;
+		};
+        gpio23 {
+			gpio-export,name = "gpio23";
+			gpio-export,direction_may_change = <1>;
+			gpios = <&gpio1 1 0>;
+		};
+        gpio24 {
+			gpio-export,name = "gpio24";
+			gpio-export,direction_may_change = <1>;
+			gpios = <&gpio1 2 0>;
+		};
+		gpio25 {
+			gpio-export,name = "gpio25";
+			gpio-export,direction_may_change = <1>;
+			gpios = <&gpio1 3 0>;
+		};
+        */
+		gpio26 {
+			/* ETH4_LED */
+			gpio-export,name = "gpio26";
+			gpio-export,direction_may_change = <1>;
+			gpios = <&gpio1 4 0>;
+		};
+        
+        gpio27 {
+			/* spi_cs1 */
+			gpio-export,name = "gpio27";
+			gpio-export,direction_may_change = <1>;
+			gpios = <&gpio1 5 0>;
+		};
+	};
+   
+};
