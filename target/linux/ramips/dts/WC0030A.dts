@@ -7,7 +7,7 @@
 	model = "WC0030A";
 
 	palmbus@10000000 {
-        /* Re-enable the gpio1 ports */
+    /* Re-enable the gpio1 ports */
 		gpio1: gpio@660 {
 			status = "okay";
 		};
@@ -15,11 +15,13 @@
 		i2c@900 {
 			status = "okay";
 		};
+
 		uart@500 {
 			status = "okay";
-            /* Mix of uart and gpio */
-            reset-names = "gpio uartf";
+      /* Mix of uart and gpio */
+      reset-names = "gpio uartf";
 		};
+
 		spi@b00 {
 			status = "okay";
 
@@ -66,9 +68,7 @@
 	pinctrl {
 		state_default: pinctrl0 {
 			gpio {
-                /* Associate the tjag, uartf and led groups with gpio */
-				ralink,group = "jtag", "led", "spi_cs1";
-                /* How do we set individual pins? */
+				ralink,group = "jtag", "led", "spi_cs1", "uartf";
 				ralink,function = "gpio";
 			};
 		};
@@ -94,93 +94,95 @@
 		status = "okay";
 	};
 
-    chosen {
+  chosen {
 		bootargs = "console=ttyS1,57600";
 	};
+
 	gpio-export {
 		compatible = "gpio-export";
 		#size-cells = <0>;
 
-		gpio0 {
-			gpio-export,name = "gpio0";
-			gpio-export,direction_may_change = <1>;
-			gpios = <&gpio0 0 0>;
-		};
-
-        /* GPIOs 1-6 are I2C,SPI */
-        
-        /* GPIO 7-14 are uart1 */
-
-        /* GPIOs 15 & 16 are uart2 */
-
-		/* JTAG */
 		gpio17 {
-			/* JTAG_TDO */
+			/* Vertical end stop UP */
 			gpio-export,name = "gpio17";
-			gpio-export,direction_may_change = <1>;
-			gpios = <&gpio0 17 0>;
+			gpios = <&gpio0 17 1>;
 		};
 		gpio18 {
-			/* JTAG_TDI */
+			/* Vertical end stop DOWN */
 			gpio-export,name = "gpio18";
-			gpio-export,direction_may_change = <1>;
-			gpios = <&gpio0 18 0>;
+			gpios = <&gpio0 18 1>;
 		};
 		gpio19 {
-			/* JTAG_TMS */
+			/* Horizontal end stop RIGHT */
 			gpio-export,name = "gpio19";
-			gpio-export,direction_may_change = <1>;
-			gpios = <&gpio0 19 0>;
+			gpios = <&gpio0 19 1>;
 		};
 		gpio20 {
-			/* JTAG_TCLK */
+			/* Horizontal end stop LEFT */
 			gpio-export,name = "gpio20";
-			gpio-export,direction_may_change = <1>;
-			gpios = <&gpio0 20 0>;
+			gpios = <&gpio0 20 1>;
 		};
 		gpio21 {
-			/* JTAG_TRST_N */
+			/* GPIO ALM (External pin 3) */
 			gpio-export,name = "gpio21";
-			gpio-export,direction_may_change = <1>;
-			gpios = <&gpio0 21 0>;
+			gpios = <&gpio0 21 1>;
 		};
 
-		/* ETH LEDs */
-        /*
-        gpio22 {
+    /* Stepper motor latch addresses */
+    gpio22 {
+      /* Latch A0 */
 			gpio-export,name = "gpio22";
-			gpio-export,direction_may_change = <1>;
+			gpio-export,output = <1>;
 			gpios = <&gpio1 0 0>;
 		};
-        gpio23 {
+    gpio23 {
+      /* Latch A1 */
 			gpio-export,name = "gpio23";
-			gpio-export,direction_may_change = <1>;
+			gpio-export,output = <1>;
 			gpios = <&gpio1 1 0>;
 		};
-        gpio24 {
+    gpio24 {
+      /* Latch A2 */
 			gpio-export,name = "gpio24";
-			gpio-export,direction_may_change = <1>;
+			gpio-export,output = <1>;
 			gpios = <&gpio1 2 0>;
 		};
-		gpio25 {
-			gpio-export,name = "gpio25";
-			gpio-export,direction_may_change = <1>;
-			gpios = <&gpio1 3 0>;
-		};
-        */
 		gpio26 {
-			/* ETH4_LED */
+			/* Latch D */
 			gpio-export,name = "gpio26";
-			gpio-export,direction_may_change = <1>;
+			gpio-export,output = <1>;
 			gpios = <&gpio1 4 0>;
 		};
-        
-        gpio27 {
-			/* spi_cs1 */
+
+    gpio27 {
+			/* GPIO RLY (External pin 2) */
 			gpio-export,name = "gpio27";
-			gpio-export,direction_may_change = <1>;
+			gpio-export,output = <1>;
 			gpios = <&gpio1 5 0>;
 		};
 	};
-   
+
+	gpio-keys-polled {
+		compatible = "gpio-keys-polled";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		poll-interval = <20>;
+
+		reset {
+			label = "reset";
+			gpios = <&gpio0 0 1>;
+			linux,code = <0x198>;
+		};
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		status {
+			/* Front LED */
+			label = "wc0030a:white:front";
+			gpios = <&gpio0 12 1>;
+		};
+	};
+
 };
